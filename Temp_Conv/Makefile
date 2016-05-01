@@ -1,6 +1,6 @@
 TARGET=Temp_Test
 
-OBJS  =run.o
+OBJS  =run.o includes/ece486_biquad.o
 
 INSTALLDIR = /usr/local/stmdev/
 

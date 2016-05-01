@@ -4,12 +4,29 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include "includes/ece486_biquad.h"
 
 #define round(x) ((int)(x)+0.5)
+#define N 100
 
 extern FlagStatus KeyPressed;   // Use to detect button presses
 
+/** These paramters are the coefficients created with the function
+ *  create_filter, the gain to normalize the gain to 1 (0dB),
+ *  and the number of sections which is the number of coefficients
+ *  divided by 5 (the number of coefficients per section)
+ */
 
+//The gain is distributed to the coefficients already
+static float G = 1;
+
+//Number of second order sections
+static int sections = 3;
+
+//a and b coefficients
+static float coeffs[15] = {0.1569,-0.2494,0.1569,-1.808,0.9173, //Section: 1
+                           0.07004,-0.0791,0.07004,-1.703,0.7641, //Section: 2
+                           0.1449,0.1449,0,-0.8295,0}; //Section: 3
 
 int main(void)
 {
@@ -22,24 +39,27 @@ int main(void)
 
     int flag = 1;
     int i;
-    float T,V,C,F;
+    float V[N],C,F;
     int a,b;
-    float *input = (float *)malloc(sizeof(float)*1);
-    float *stage1_input_re = (float *)malloc(sizeof(float)*1);
+    float *input = (float *)malloc(sizeof(float)*N);
+    float *output = (float *)malloc(sizeof(float)*N);
+    BIQUAD_T *bq = init_biquad(sections,G,coeffs,N);
 
-    setblocksize(1);
+    setblocksize(N);
 
-    initialize(FS_2K, STEREO_IN, STEREO_OUT);       // Set up: ADC input, DAC output
+    initialize(FS_2K, MONO_IN, MONO_OUT);       // Set up: ADC input, DAC output
 
 
     while(1){
+        //DIGITAL_IO_SET(); 	// Use a scope on PD0 to measure execution time
 
-         //DIGITAL_IO_SET(); 	// Use a scope on PD0 to measure execution time
+        getblock(input);	// Wait here until the input buffer is filled...
 
-           getblockstereo(input,stage1_input_re);	// Wait here until the input buffer is filled...
+        for(i = 0; i < N; i ++){
+            V[i] = 1.5 + (input[i]*1.5);
+        }
 
-           //putblockstereo(stage1_output_re,stage1_output_re);
-
+        calc_biquad(bq,V,output);
 
         if (KeyPressed) {
             KeyPressed = RESET;
@@ -56,12 +76,12 @@ int main(void)
             BSP_LED_Toggle(LED5);
         }
 
-        V = 1.5 + (input[0]*1.5);
-        C = (159.3448842*V) - 273.15;
+
+        C = (160.89156*V[49]) - 273.15;
         F = C*1.8 + 32;
         a = (int)(C + 0.5);
         b = (int)(F + 0.5);
-        for(i = 0; i < 40000000; i++){}
+        for(i = 0; i < 4000000000; i++){}
         BSP_LCD_GLASS_DisplayString( (uint8_t *)lcd_str);
         sprintf(lcd_str, "C%2dF%2d", a, b);
     }

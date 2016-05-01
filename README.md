@@ -1,2 +1,2 @@
-# furry-couscous
+# MoCo
 Code for MoCo
