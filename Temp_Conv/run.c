@@ -7,7 +7,8 @@
 #include "includes/ece486_biquad.h"
 
 #define round(x) ((int)(x)+0.5)
-#define N 100
+#define N 1
+#define eta 1.01010101
 
 extern FlagStatus KeyPressed;   // Use to detect button presses
 
@@ -77,7 +78,7 @@ int main(void)
         }
 
 
-        C = (160.89156*V[49]) - 273.15;
+        C = (159.2826542*V[0]*eta) - 273.15;
         F = C*1.8 + 32;
         a = (int)(C + 0.5);
         b = (int)(F + 0.5);
