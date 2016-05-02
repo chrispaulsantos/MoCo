@@ -7,8 +7,6 @@
 
 #define round(x) ((int)(x)+0.5)
 #define N 1
-#define eta 0.989
-
 
 extern FlagStatus KeyPressed;   // Use to detect button presses
 
@@ -16,10 +14,10 @@ int main(void)
 {
     char lcd_str[8];
     int flag = 1;
-    int i;
+    int i,iF,iC;
+    float eta = 0.994;
     float V,C,F,VRef[1];
-    VRef[0] = -.45466666666;
-    int a,b,c;
+    VRef[0] = -0.45466666666;
     float *input = (float *)malloc(sizeof(float)*N);
 
     setblocksize(N);
@@ -32,22 +30,19 @@ int main(void)
         getblock(input);	// Wait here until the input buffer is filled...
 
         if (KeyPressed) {
-            if(c > 200){c = 0;}
             KeyPressed = RESET;
             flag = !flag;
             BSP_LED_Toggle(LED5);
-            //VRef[0] = VRef[0] + 0.01;
-            c++;
         }
 
         V = 1.5 + (input[0]*1.5);
         C = (159.2826542*V*eta) - 273.15;
         F = C*1.8 + 32;
-        a = (int)(C + 0.5);
-        b = (int)(F + 0.5);
+        iC = (int)(C + 0.5);
+        iF = (int)(F + 0.5);
         for(i = 0; i < 20000000; i++){}
-        BSP_LCD_GLASS_DisplayString( (uint8_t *)lcd_str);
-        sprintf(lcd_str, "C%2dF%2d", a, b);
+        BSP_LCD_GLASS_DisplayString((uint8_t *)lcd_str);
+        sprintf(lcd_str, "C%2dF%2d", iC, iF);
         putblock(VRef);
     }
     return 0;
