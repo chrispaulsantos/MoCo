@@ -7,7 +7,7 @@
 
 #define round(x) ((int)(x)+0.5)
 #define N 1
-#define eta 0.987
+#define eta 0.988
 
 extern FlagStatus KeyPressed;   // Use to detect button presses
 
